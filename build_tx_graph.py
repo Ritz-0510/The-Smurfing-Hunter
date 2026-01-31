@@ -59,3 +59,50 @@ suspicious_fan_out = [
 ]
 
 print("Suspicious fan-out nodes:", len(suspicious_fan_out))
+
+import matplotlib.pyplot as plt
+
+# -----------------------------
+# Find most suspicious fan-out node
+# -----------------------------
+
+# Get node with highest out-degree
+central_node = max(G.out_degree, key=lambda x: x[1])[0]
+print("Central suspicious node:", central_node)
+
+# Get its immediate outgoing neighbors
+neighbors = list(G.successors(central_node))[:15]  # limit to 10–20
+
+# Create subgraph nodes
+subgraph_nodes = [central_node] + neighbors
+SG = G.subgraph(subgraph_nodes)
+
+# -----------------------------
+# Visualization
+# -----------------------------
+
+plt.figure(figsize=(8, 8))
+
+pos = nx.spring_layout(SG, seed=42)
+
+# Color nodes
+node_colors = []
+for node in SG.nodes():
+    if node == central_node:
+        node_colors.append("red")
+    else:
+        node_colors.append("skyblue")
+
+# Draw graph
+nx.draw(
+    SG,
+    pos,
+    with_labels=False,
+    node_color=node_colors,
+    node_size=800,
+    edge_color="gray",
+    arrows=True
+)
+
+plt.title("Smurfing Pattern: Fan-out Transaction Subgraph")
+plt.show()
