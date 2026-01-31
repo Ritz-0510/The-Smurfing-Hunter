@@ -2,12 +2,7 @@ import pandas as pd
 import networkx as nx
 import matplotlib.pyplot as plt
 
-# -----------------------------
 # Load Elliptic dataset
-# NOTE: Dataset is NOT tracked in Git.
-# Download from Kaggle and place in project root.
-# -----------------------------
-
 txs = pd.read_csv(
     "elliptic_txs_features.csv",
     header=None,
@@ -16,77 +11,115 @@ txs = pd.read_csv(
 
 edges = pd.read_csv("elliptic_txs_edgelist.csv")
 
-# Create directed graph
+# Build directed transaction graph
 G = nx.DiGraph()
 
-# Add transaction nodes
 for tx_id in txs.index:
     G.add_node(tx_id)
 
-# Add directed edges (fund flow)
 for _, row in edges.iterrows():
     G.add_edge(row["txId1"], row["txId2"])
 
-# Verification / sanity checks
 print("Nodes:", G.number_of_nodes())
 print("Edges:", G.number_of_edges())
 
-# Sample edge
-u, v, attrs = next(iter(G.edges(data=True)))
-print(f"Sample edge: {u} → {v}", attrs)
+# FAN-OUT DETECTION (Splitting)
+out_degrees = dict(G.out_degree())
+fan_out_node = max(out_degrees.items(), key=lambda x: x[1])[0]
+print("Max out-degree:", out_degrees[fan_out_node])
+print("Fan-out central node:", fan_out_node)
 
-# Degree analysis
-degrees = [d for _, d in G.out_degree()]
-print("Max out-degree:", max(degrees))
+fan_out_neighbors = list(G.successors(fan_out_node))[:15]
+fan_out_SG = G.subgraph([fan_out_node] + fan_out_neighbors)
 
-# DAG check
-print("Topological sort sample:", list(nx.topological_sort(G))[:10])
+plt.figure(figsize=(7, 7))
+pos = nx.spring_layout(fan_out_SG, seed=42)
 
-# Simple smurfing heuristic (fan-out)
-THRESHOLD = 100  # conservative threshold
-
-suspicious_fan_out = [
-    n for n, d in G.out_degree()
-    if d > THRESHOLD
-]
-
-print("Suspicious fan-out nodes:", len(suspicious_fan_out))
-
-# Find most suspicious fan-out node
-# Get node with highest out-degree
-central_node = max(G.out_degree, key=lambda x: x[1])[0]
-print("Central suspicious node:", central_node)
-
-# Get its immediate outgoing neighbors
-neighbors = list(G.successors(central_node))[:15]  # limit to 10–20
-
-# Create subgraph nodes
-subgraph_nodes = [central_node] + neighbors
-SG = G.subgraph(subgraph_nodes)
-
-# Visualization
-plt.figure(figsize=(8, 8))
-
-pos = nx.spring_layout(SG, seed=42)
-
-# Color nodes
-node_colors = []
-for node in SG.nodes():
-    if node == central_node:
-        node_colors.append("red")
-    else:
-        node_colors.append("skyblue")
-
-# Draw graph
+colors = ["red" if n == fan_out_node else "skyblue" for n in fan_out_SG.nodes()]
 nx.draw(
-    SG,
+    fan_out_SG,
     pos,
-    with_labels=False,
-    node_color=node_colors,
+    node_color=colors,
     node_size=800,
     edge_color="gray",
-    arrows=True
+    arrows=True,
+    with_labels=False
 )
 
-plt.title("Smurfing Pattern: Fan-out Transaction Subgraph")
+plt.title("Fan-out Pattern (Splitting)")
 plt.show()
+
+# FAN-IN DETECTION (Re-aggregation)
+in_degrees = dict(G.in_degree())
+fan_in_node = max(in_degrees.items(), key=lambda x: x[1])[0]
+print("Max in-degree:", in_degrees[fan_in_node])
+print("Fan-in central node:", fan_in_node)
+
+fan_in_neighbors = list(G.predecessors(fan_in_node))[:15]
+fan_in_SG = G.subgraph([fan_in_node] + fan_in_neighbors)
+
+plt.figure(figsize=(7, 7))
+pos = nx.spring_layout(fan_in_SG, seed=42)
+
+colors = ["red" if n == fan_in_node else "skyblue" for n in fan_in_SG.nodes()]
+nx.draw(
+    fan_in_SG,
+    pos,
+    node_color=colors,
+    node_size=800,
+    edge_color="gray",
+    arrows=True,
+    with_labels=False
+)
+
+plt.title("Fan-in Pattern (Re-aggregation)")
+plt.show()
+
+# MULTI-HOP PATH TRACING
+# Pick most suspicious node overall
+suspicious_node = max(G.degree(), key=lambda x: x[1])[0]
+print("Node used for path tracing:", suspicious_node)
+
+paths = nx.single_source_shortest_path(G, suspicious_node, cutoff=3)
+
+multi_hop_chain = None
+for path in paths.values():
+    if len(path) >= 4:
+        multi_hop_chain = path
+        break
+
+if multi_hop_chain:
+    print("Multi-hop transaction chain:")
+    print(" → ".join(map(str, multi_hop_chain)))
+
+    chain_edges = list(zip(multi_hop_chain[:-1], multi_hop_chain[1:]))
+    chain_G = nx.DiGraph(chain_edges)
+
+    plt.figure(figsize=(8, 4))
+    pos = nx.spring_layout(chain_G, seed=42)
+
+    nx.draw(
+        chain_G,
+        pos,
+        node_color="orange",
+        node_size=900,
+        edge_color="black",
+        arrows=True,
+        with_labels=False
+    )
+
+    plt.title("Multi-hop Blockchain Transaction Flow")
+    plt.show()
+
+# SUSPICION SCORING + TOP 5
+scores = {
+    n: G.in_degree(n) + G.out_degree(n)
+    for n in G.nodes()
+}
+
+top_5 = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:5]
+
+print("\nTop 5 Suspicious Transactions")
+print("Tx_ID | Score")
+for tx, score in top_5:
+    print(tx, "|", score)
