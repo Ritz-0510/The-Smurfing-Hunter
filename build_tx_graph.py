@@ -1,5 +1,6 @@
 import pandas as pd
 import networkx as nx
+import matplotlib.pyplot as plt
 
 # -----------------------------
 # Load Elliptic dataset
@@ -15,10 +16,7 @@ txs = pd.read_csv(
 
 edges = pd.read_csv("elliptic_txs_edgelist.csv")
 
-# -----------------------------
 # Create directed graph
-# -----------------------------
-
 G = nx.DiGraph()
 
 # Add transaction nodes
@@ -29,10 +27,7 @@ for tx_id in txs.index:
 for _, row in edges.iterrows():
     G.add_edge(row["txId1"], row["txId2"])
 
-# -----------------------------
 # Verification / sanity checks
-# -----------------------------
-
 print("Nodes:", G.number_of_nodes())
 print("Edges:", G.number_of_edges())
 
@@ -47,10 +42,7 @@ print("Max out-degree:", max(degrees))
 # DAG check
 print("Topological sort sample:", list(nx.topological_sort(G))[:10])
 
-# -----------------------------
 # Simple smurfing heuristic (fan-out)
-# -----------------------------
-
 THRESHOLD = 100  # conservative threshold
 
 suspicious_fan_out = [
@@ -60,12 +52,7 @@ suspicious_fan_out = [
 
 print("Suspicious fan-out nodes:", len(suspicious_fan_out))
 
-import matplotlib.pyplot as plt
-
-# -----------------------------
 # Find most suspicious fan-out node
-# -----------------------------
-
 # Get node with highest out-degree
 central_node = max(G.out_degree, key=lambda x: x[1])[0]
 print("Central suspicious node:", central_node)
@@ -77,10 +64,7 @@ neighbors = list(G.successors(central_node))[:15]  # limit to 10–20
 subgraph_nodes = [central_node] + neighbors
 SG = G.subgraph(subgraph_nodes)
 
-# -----------------------------
 # Visualization
-# -----------------------------
-
 plt.figure(figsize=(8, 8))
 
 pos = nx.spring_layout(SG, seed=42)
