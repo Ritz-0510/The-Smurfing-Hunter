@@ -1,73 +1,88 @@
-##The Smurfing Hunter
-Blockchain Transaction Smurfing Detection System
+# 🕵️‍♂️ Smurfing Hunter AI  
+**Graph-Based Blockchain Forensics Dashboard**
+
+Smurfing Hunter AI is an **interactive blockchain forensics platform** designed to identify and analyze **money laundering patterns** in large-scale cryptocurrency transaction networks. The system combines **graph-based machine learning**, **network topology analysis**, and **explainable visualizations** to assist investigators in detecting suspicious financial behavior.
+
+Built on real-world blockchain data from the **Elliptic dataset**, the platform focuses on uncovering complex laundering strategies such as **smurfing rings** (coordinated fund splitting across multiple wallets) and **peeling chains** (gradual fund transfer across sequential hops). By integrating **AI-generated risk scores**, **centrality measures**, and **structural pattern detectors**, the dashboard enables both **automated risk assessment** and **human-in-the-loop investigation**.
+
+The application is implemented using **Streamlit** for rapid interactive analysis and **NetworkX + PyVis** for forensic graph visualization, making it suitable for **academic research, AML analysis, and hackathon demonstrations**.
 
 ---
 
-##Overview
-The Smurfing Hunter is a blockchain forensic analysis project designed to detect smurfing activities, a common money laundering technique where large transactions are intentionally split into multiple smaller ones to avoid detection. This system analyzes wallet transaction behavior to identify suspicious patterns and provides explainable forensic insights using transaction graphs.
+## 🚀 Features
 
-The project is intended for academic use, hackathons, and blockchain forensics demonstrations.
-
----
-
-##Problem Statement
-Smurfing on blockchains makes illicit fund movement difficult to identify using traditional monitoring methods. Criminals distribute funds across multiple transactions and wallets, reducing visibility and traceability. The goal of this project is to automatically detect such behavior by analyzing transaction frequency, amount distribution, and wallet interaction patterns.
-
----
-
-##Key Features
-
-Detection of smurfing patterns in blockchain transaction data
-Wallet-level risk scoring
-Identification of abnormal transaction frequency and low-value transfers
-Graph-based visualization of suspicious fund flows
-Explainable reasons for each flagged wallet
+- 🔍 **Transaction-Level Investigation**
+- 🧠 **AI Risk Scoring Integration**
+- 🕸️ **Graph-Based Pattern Detection**
+  - Smurfing Topology Detection
+  - Peeling Chain Detection
+- 📊 **Interactive Network Visualization (PyVis)**
+- 📈 **PageRank & Degree Centrality Analysis**
+- 📥 **Exportable Forensic Investigation Report**
 
 ---
 
-##Approach
-The system processes blockchain transaction data and aggregates activity at the wallet level. It applies rule-based heuristics such as frequent small-value transactions, rapid transaction timing, and repeated intermediary wallet usage. Suspicious wallets are scored and visualized using transaction graphs to support forensic analysis.
+## 🛠️ Tech Stack
 
+- Python 3.8+
+- Streamlit (interactive dashboard)
+- Pandas (data manipulation)
+- NetworkX (graph construction & analysis)
+- PyVis (interactive network visualization)
+- Vis.js (graph rendering engine)
+- scikit-learn (model training & evaluation)
+
+**Development Tools**
+- Git & GitHub
+- Kaggle (dataset hosting)
+ 
 ---
 
-##Tech Stack
-Python
-Pandas
-NetworkX
-Matplotlib
-Streamlit
-
+## 🧱 Project Structure
+The-Smurfing-Hunter-main/
+  ├── elliptic_txs_classes.csv # Ground-truth transaction labels
+  ├── elliptic_txs_edgelist.csv # Blockchain transaction edges
+  ├── elliptic_txs_features.csv # Raw transaction features (Elliptic dataset)
+  ├── processed_data.csv # Generated risk scores & graph features
+  ├── smurfing_hunter_dashboard.py # Streamlit forensic dashboard
+  ├── trainer.py # Feature engineering & risk scoring
+  ├── test_detectors.py # Detector validation tests
+  ├── lib/
+  │ ├── init.py
+  │ └── detectors.py # Smurfing & peeling detection logic
+  └── README.md
+  
 ---
 
-##Project Structure
-The-Smurfing-Hunter/
-data/ – blockchain transaction datasets
-smurfing_detection.py – core detection logic
-graph_analysis.py – transaction graph construction
-utils.py – helper functions
-reports/ – generated forensic outputs
+## ⚙️ Requirements
 
----
+Install dependencies using:
 
-##How to Run
-
-Clone the repository
-git clone https://github.com/Ritz-0510/The-Smurfing-Hunter.git
-
-Navigate to the project directory
-cd The-Smurfing-Hunter
-
-Install dependencies
-pip install pandas networkx streamlit pyvis empfile os sys
-
-Run the detection script
+```bash
+pip install streamlit pandas networkx pyvis
 streamlit run smurfing_hunter_dashboard.py
-
+```
 ---
 
-##Output
-The system produces a list of suspicious wallets, smurfing risk scores, explainable detection reasons, and visual transaction graphs for forensic inspection.
-Integration of machine learning-based anomaly detection
-Real-time blockchain data ingestion
-Multi-blockchain support
-Interactive web dashboard for visualization
+## 📦 Dataset (External Download Required)
+
+Due to GitHub file size limitations, the original Elliptic dataset files are **not included in this repository**.
+
+### 🔗 Dataset Source
+Download the dataset from Kaggle:
+
+https://www.kaggle.com/datasets/ellipticco/elliptic-data-set
+
+### 📁 Required Files
+After downloading, place the following files in the project root directory:
+
+- `elliptic_txs_features.csv`
+- `elliptic_txs_edgelist.csv`
+- `elliptic_txs_classes.csv`
+
+### ⚠️ Note
+- `elliptic_txs_features.csv` is ~700MB and cannot be pushed to GitHub
+- `processed_data.csv` is generated locally by running `trainer.py`
+- All experiments and visualizations are fully reproducible once the dataset is downloaded
+
+---
