@@ -40,17 +40,17 @@ The application is implemented using **Streamlit** for rapid interactive analysi
 
 ## 🧱 Project Structure
 The-Smurfing-Hunter-main/
-  -- elliptic_txs_classes.csv # Ground-truth transaction labels
-  --elliptic_txs_edgelist.csv # Blockchain transaction edges
-  --elliptic_txs_features.csv # Raw transaction features (Elliptic dataset)
-  -- processed_data.csv # Generated risk scores & graph features
-  -- smurfing_hunter_dashboard.py # Streamlit forensic dashboard
-  -- trainer.py # Feature engineering & risk scoring
-  -- test_detectors.py # Detector validation tests
-  -- lib/
-    -- init.py
-    -- detectors.py # Smurfing & peeling detection logic
-  -- README.md
+  - elliptic_txs_classes.csv # Ground-truth transaction labels
+  - elliptic_txs_edgelist.csv # Blockchain transaction edges
+  - elliptic_txs_features.csv # Raw transaction features (Elliptic dataset)
+  - processed_data.csv # Generated risk scores & graph features
+  - smurfing_hunter_dashboard.py # Streamlit forensic dashboard
+  - trainer.py # Feature engineering & risk scoring
+  - test_detectors.py # Detector validation tests
+  - lib/
+    - init.py
+    - detectors.py # Smurfing & peeling detection logic
+  - README.md
   
 ---
 
